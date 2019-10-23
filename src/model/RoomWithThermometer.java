@@ -21,7 +21,7 @@ public class RoomWithThermometer {
 
 
     private int tempArrayIndex;
-
+    private String state;
 
     Thermometer thermometer;
     Thermometer thermometerBoiling;
@@ -35,6 +35,7 @@ public class RoomWithThermometer {
         }catch (IOException exception){
             System.out.println("Can't read file");
         }
+        state = "boiling";
 
         initThemometers();
 
@@ -58,6 +59,32 @@ public class RoomWithThermometer {
     // MODIFIES: this
     // EFFECTS:
     public void keyPressed(int keyCode) throws NoMoreItemInTempArrayException {
+//        switch(getState()){
+//            case "freezing":
+//                validateKeyFreezing(keyCode);
+//                break;
+//            case "offset":
+//                validateKeyOffset(keyCode);
+//                break;
+//            case "thermometers":
+//                validateKeyThermometers(keyCode);
+//                break;
+//            default:
+//                validateKeyBoiling(keyCode);
+//                break;
+//        }
+        validateKeyThermometers(keyCode);
+
+
+    }
+
+    private void validateKeyFreezing(int keyCode) {
+    }
+
+    private void validateKeyOffset(int keyCode) {
+    }
+
+    private void validateKeyThermometers(int keyCode) throws NoMoreItemInTempArrayException {
         if(keyCode == KeyEvent.VK_ENTER){
             if(tempArrayIndex < tempArray.size() - 1){
                 tempArrayIndex++;
@@ -65,10 +92,10 @@ public class RoomWithThermometer {
                 throw new NoMoreItemInTempArrayException();
             }
         }
-
     }
 
-
+    private void validateKeyBoiling(int keyCode) {
+    }
 
 
     public List<String> readToLines(String filePath) throws IOException {
@@ -93,4 +120,7 @@ public class RoomWithThermometer {
         return tempArrayIndex;
     }
 
+    public String getState() {
+        return this.state;
+    }
 }

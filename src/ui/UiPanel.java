@@ -33,6 +33,10 @@ public class UiPanel extends JPanel {
     private String statusMessage;
     private String boilingMessage;
     private String freezingMessage;
+    private String boilingQuestion;
+    private String freezingQuestion;
+    private String offsetQuestion;
+
     private int previousTempArrayIndex = -1;
 
     public UiPanel(RoomWithThermometer theRoom) {
@@ -52,7 +56,9 @@ public class UiPanel extends JPanel {
                 " | IGNORE FLUCTUATIONS OF: +/- " + theRoom.INSIGNIFICANT_OFFSET + " C/F FROM BOILING/FREEZING THRESHOLD";
         boilingMessage = "This thermometer only labels boiling point when the temperature is in an increasing direction.";
         freezingMessage = "This thermometer only labels freezing point when the temperature is in a decreasing direction.";
-
+//        boilingQuestion = "WHAT IS THE BOILING POINT? Enter value between " +
+//                theThermometer.getMinTempC() + " and " + theThermometer.getMaxTempC() + " C OR "
+//                + theThermometer.getMinTempF() + " and " + theThermometer.getMaxTempF() + " F. Example: 0 C, 500 C";
 
     }
 
@@ -60,9 +66,23 @@ public class UiPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics gameGraphics) {
         super.paintComponent(gameGraphics);
+//
+//        switch(theRoom.getState()){
+//            case "freezing":
+//                displayFreezingQuestion(gameGraphics);
+//                break;
+//            case "offset":
+//                displayOffsetQuestion(gameGraphics);
+//                break;
+//            case "thermometers":
+//                displayThermometers(gameGraphics);
+//                break;
+//            default:
+//                displayBoilingQuestion(gameGraphics);
+//                break;
+//        }
 
         displayThermometers(gameGraphics);
-
 
         if (!bottomMessage.equals("NO MORE VALUE TO SEE!") && theRoom.getTempArrayIndex() != previousTempArrayIndex) {
             String tempString = theRoom.tempArray.get(theRoom.getTempArrayIndex());
@@ -89,6 +109,24 @@ public class UiPanel extends JPanel {
         }
 
 
+    }
+
+    private void displayFreezingQuestion(Graphics gameGraphics) {
+        int contentWidth = drawQuestion(freezingQuestion,gameGraphics);
+        drawFlashingCursor(gameGraphics,centerX,centerY,contentWidth,Color.BLACK);
+    }
+
+    private int drawQuestion(String question,Graphics gameGraphics) {
+        return drawMessage(question, gameGraphics, 25, 0,centerY,Color.BLACK);
+    }
+
+    private void displayOffsetQuestion(Graphics gameGraphics) {
+        drawQuestion(offsetQuestion,gameGraphics);
+
+    }
+
+    private void displayBoilingQuestion(Graphics gameGraphics) {
+        drawQuestion(boilingQuestion,gameGraphics);
     }
 
 

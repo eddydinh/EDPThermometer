@@ -2,13 +2,14 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import model.exceptions.*;
+
 public class Thermometer {
 
 
     protected double temperature;
     protected double freezingThresholdC;
-
 
 
     protected double boilingThresholdC;
@@ -20,6 +21,8 @@ public class Thermometer {
 
     protected double minTempC = -500.0;
     protected double maxTempC = 500.0;
+
+
     protected double minTempF = -868;
     protected double maxTempF = 932;
     protected boolean isBoiling;
@@ -29,7 +32,7 @@ public class Thermometer {
     public Thermometer(String freezingThreshold,
                        String boilingThreshold,
                        double insignificantOffset) {
-        initThresholds(freezingThreshold,boilingThreshold);
+        initThresholds(freezingThreshold, boilingThreshold);
         this.insignificantOffset = insignificantOffset;
 
 
@@ -38,48 +41,49 @@ public class Thermometer {
     private void initThresholds(String freezingThreshold, String boilingThreshold) {
         String[] tempString = freezingThreshold.split(" ");
 
-        if(tempString[1].equals("C")){
+        if (tempString[1].equals("C")) {
             this.freezingThresholdC = Double.valueOf(tempString[0]);
             this.freezingThresholdF = convertCToF(freezingThresholdC);
-        }else{
+        } else {
             this.freezingThresholdF = Double.valueOf(tempString[0]);
-            this.freezingThresholdC= convertFToC(freezingThresholdF);
+            this.freezingThresholdC = convertFToC(freezingThresholdF);
         }
 
         tempString = boilingThreshold.split(" ");
-        if(tempString[1].equals("C")){
+        if (tempString[1].equals("C")) {
             this.boilingThresholdC = Double.valueOf(tempString[0]);
             this.boilingThresholdF = convertCToF(boilingThresholdC);
-        }else{
+        } else {
             this.boilingThresholdF = Double.valueOf(tempString[0]);
-            this.boilingThresholdC= convertFToC(boilingThresholdF);
+            this.boilingThresholdC = convertFToC(boilingThresholdF);
         }
     }
 
     private double convertCToF(double degreeC) {
-        return (degreeC * 9/5) + 32;
+        return (degreeC * 9 / 5) + 32;
     }
 
-    private double convertFToC(double degreeF){
-        return (degreeF  - 32) * 5/9;
+    private double convertFToC(double degreeF) {
+        return (degreeF - 32) * 5 / 9;
     }
+
     public double getTemperature() {
         return temperature;
     }
 
     public void setTemperature(double temperature) throws InsignificantFluctuationsException {
 
-        if( isFahrenheit() && (getTemperature() == boilingThresholdF || getTemperature() == freezingThresholdF)
-             || !isFahrenheit() && (getTemperature() == boilingThresholdC || getTemperature() == freezingThresholdC)
-        ){
-            if(Math.abs(temperature-getTemperature()) > insignificantOffset){
+        if (isFahrenheit() && (getTemperature() == boilingThresholdF || getTemperature() == freezingThresholdF)
+                || !isFahrenheit() && (getTemperature() == boilingThresholdC || getTemperature() == freezingThresholdC)
+        ) {
+            if (Math.abs(temperature - getTemperature()) > insignificantOffset) {
                 validateTemp(temperature);
                 this.temperature = temperature;
 
-            }else{
-                throw new InsignificantFluctuationsException ();
+            } else {
+                throw new InsignificantFluctuationsException();
             }
-        }else{
+        } else {
             validateTemp(temperature);
             this.temperature = temperature;
         }
@@ -91,25 +95,25 @@ public class Thermometer {
 
     protected void validateTemp(double temperature) {
 
-       if(isFahrenheit()){
+        if (isFahrenheit()) {
 
-           validateTempF(temperature);
-       }else{
+            validateTempF(temperature);
+        } else {
 
-           validateTempC(temperature);
-       }
+            validateTempC(temperature);
+        }
     }
 
     private void validateTempF(double temperature) {
 
-        if(temperature >= getBoilingThresholdF()){
+        if (temperature >= getBoilingThresholdF()) {
             isBoiling = true;
             isFreezing = false;
 
-        }else if (temperature <= getFreezingThresholdF()){
+        } else if (temperature <= getFreezingThresholdF()) {
             isBoiling = false;
             isFreezing = true;
-        }else{
+        } else {
             isBoiling = false;
             isFreezing = false;
         }
@@ -117,14 +121,14 @@ public class Thermometer {
 
     private void validateTempC(double temperature) {
 
-        if(temperature >= getBoilingThresholdC()){
+        if (temperature >= getBoilingThresholdC()) {
             isBoiling = true;
             isFreezing = false;
 
-        }else if (temperature <= getFreezingThresholdC()){
+        } else if (temperature <= getFreezingThresholdC()) {
             isBoiling = false;
             isFreezing = true;
-        }else{
+        } else {
             isBoiling = false;
             isFreezing = false;
         }
@@ -140,14 +144,12 @@ public class Thermometer {
     }
 
     public String getDegreeType() {
-        if (isFahrenheit){
+        if (isFahrenheit) {
             return " F";
-        }
-        else{
-            return  " C";
+        } else {
+            return " C";
         }
     }
-
 
 
     public double getMaxTempC() {
@@ -156,6 +158,14 @@ public class Thermometer {
 
     public double getMaxTempF() {
         return maxTempF;
+    }
+
+    public double getMinTempC() {
+        return minTempC;
+    }
+
+    public double getMinTempF() {
+        return minTempF;
     }
 
 
