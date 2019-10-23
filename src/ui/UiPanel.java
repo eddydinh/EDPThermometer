@@ -12,12 +12,14 @@ public class UiPanel extends JPanel {
     private static final int CIRCLE_WIDTH = 100;
 
     private static final int OFFSET_CENTER_X = 300;
-    private static final int RECT_WIDTH = CIRCLE_WIDTH/2;
+    private static final int RECT_WIDTH = CIRCLE_WIDTH / 2;
     private static final int RECT_LENGTH = 400;
     private static final int OFFSET_RECT_Y = 20;
 
 
     private Color thermometerColor = new Color(196, 43, 27);
+    private Color thermometerColorBoiling = new Color(196, 43, 27);
+    private Color thermometerColorFreezing = new Color(76, 168, 255);
     private RoomWithThermometer theRoom;
     private Thermometer theThermometer;
     private Thermometer theThermometerBoiling;
@@ -29,7 +31,10 @@ public class UiPanel extends JPanel {
     private int centerY;
     private String bottomMessage;
     private String statusMessage;
+    private String boilingMessage;
+    private String freezingMessage;
     private int previousTempArrayIndex = -1;
+
     public UiPanel(RoomWithThermometer theRoom) {
         setPreferredSize(new Dimension(theRoom.WIDTH, theRoom.LENGTH));
         setBackground(Color.WHITE);
@@ -42,9 +47,11 @@ public class UiPanel extends JPanel {
         bottomMessage = "PRESS ENTER TO SEE NEXT TEMPERATURE VALUE";
         statusMessage = "CURRENT BOILING THRESHOLD:" + theThermometer.getBoilingThresholdC() + " C / "
                 + theThermometer.getBoilingThresholdF() + " F" +
-               " | CURRENT FREEZING THRESHOLD: " + theThermometer.getFreezingThresholdC() + " C / "
+                " | CURRENT FREEZING THRESHOLD: " + theThermometer.getFreezingThresholdC() + " C / "
                 + theThermometer.getFreezingThresholdF() + " F" +
                 " | IGNORE FLUCTUATIONS OF: +/- " + theRoom.INSIGNIFICANT_OFFSET + " C/F FROM BOILING/FREEZING THRESHOLD";
+        boilingMessage = "This thermometer only labels boiling point when the temperature is in an increasing direction.";
+        freezingMessage = "This thermometer only labels freezing point when the temperature is in a decreasing direction.";
 
 
     }
@@ -57,25 +64,29 @@ public class UiPanel extends JPanel {
         displayThermometers(gameGraphics);
 
 
-        if(!bottomMessage.equals("NO MORE VALUE TO SEE!") && theRoom.getTempArrayIndex() != previousTempArrayIndex) {
+        if (!bottomMessage.equals("NO MORE VALUE TO SEE!") && theRoom.getTempArrayIndex() != previousTempArrayIndex) {
             String tempString = theRoom.tempArray.get(theRoom.getTempArrayIndex());
             String[] temp = tempString.split(" ");
             if (temp[1].equals("F")) {
                 theThermometer.setFahrenheit(true);
+                theThermometerBoiling.setFahrenheit(true);
+                theThermometerFreezing.setFahrenheit(true);
             } else {
                 theThermometer.setFahrenheit(false);
+                theThermometerBoiling.setFahrenheit(false);
+                theThermometerFreezing.setFahrenheit(false);
             }
             double targetTemp = Double.parseDouble(temp[0]);
             try {
                 theThermometer.setTemperature(targetTemp);
+                theThermometerBoiling.setTemperature(targetTemp);
+                theThermometerFreezing.setTemperature(targetTemp);
                 bottomMessage = "PRESS ENTER TO SEE NEXT VALUE!";
             } catch (InsignificantFluctuationsException e) {
                 bottomMessage = "IGNORED VALUE OF " + tempString + " DUE TO FLUCTUATION INSIGNIFICANCE. PRESS ENTER TO SEE NEXT VALUE";
             }
             previousTempArrayIndex = theRoom.getTempArrayIndex();
         }
-
-
 
 
     }
@@ -92,32 +103,54 @@ public class UiPanel extends JPanel {
     }
 
     private void drawThermometerBoiling(Graphics gameGraphics) {
-        drawCircle(gameGraphics, thermometerColor, centerX - OFFSET_CENTER_X,
+        drawRect(gameGraphics, centerX + OFFSET_CENTER_X + RECT_WIDTH + CIRCLE_WIDTH / 4,
+                centerY + OFFSET_RECT_Y, RECT_WIDTH, RECT_LENGTH, null, null);
+
+        drawCircle(gameGraphics, thermometerColorBoiling, centerX + OFFSET_CENTER_X,
                 centerY, CIRCLE_WIDTH);
 
+        //Inner rect
+        drawRect(gameGraphics, centerX + OFFSET_CENTER_X + RECT_WIDTH + 1 + CIRCLE_WIDTH / 4,
+                centerY + OFFSET_RECT_Y + 5, RECT_WIDTH + 1,
+                computeRectLength(theThermometerBoiling), thermometerColorBoiling, theThermometerBoiling);
+
+
+        drawMessage(boilingMessage, gameGraphics, 12, centerX + OFFSET_CENTER_X + RECT_WIDTH + 1 + CIRCLE_WIDTH / 4 + 250,
+                centerY + OFFSET_RECT_Y + CIRCLE_WIDTH + 30
+                , thermometerColorBoiling
+        );
     }
 
     private void drawThermometerFreezing(Graphics gameGraphics) {
-        drawCircle(gameGraphics, thermometerColor, centerX + OFFSET_CENTER_X,
+
+        drawRect(gameGraphics, centerX - OFFSET_CENTER_X + RECT_WIDTH + CIRCLE_WIDTH / 4,
+                centerY + OFFSET_RECT_Y, RECT_WIDTH, RECT_LENGTH, null, null);
+
+        drawCircle(gameGraphics, thermometerColorFreezing, centerX - OFFSET_CENTER_X,
                 centerY, CIRCLE_WIDTH);
+
+        //Inner rect
+        drawRect(gameGraphics, centerX - OFFSET_CENTER_X + RECT_WIDTH + 1 + CIRCLE_WIDTH / 4,
+                centerY + OFFSET_RECT_Y + 5, RECT_WIDTH + 1,
+                computeRectLength(theThermometerFreezing), thermometerColorFreezing, theThermometerFreezing);
+
+        drawMessage(freezingMessage, gameGraphics, 12, centerX - OFFSET_CENTER_X + RECT_WIDTH + 1 + CIRCLE_WIDTH / 4 + 250,
+                centerY + OFFSET_RECT_Y + CIRCLE_WIDTH + 30
+                , thermometerColorFreezing);
     }
 
     private void drawThermometer(Graphics gameGraphics) {
 
-        drawRect(gameGraphics, centerX + RECT_WIDTH + CIRCLE_WIDTH/4,
-                centerY + OFFSET_RECT_Y, RECT_WIDTH, RECT_LENGTH, null,null);
+        drawRect(gameGraphics, centerX + RECT_WIDTH + CIRCLE_WIDTH / 4,
+                centerY + OFFSET_RECT_Y, RECT_WIDTH, RECT_LENGTH, null, null);
 
         drawCircle(gameGraphics, thermometerColor, centerX, centerY, CIRCLE_WIDTH);
 
 
         //Inner rect
-        drawRect(gameGraphics, centerX + RECT_WIDTH + 1 + CIRCLE_WIDTH/4,
+        drawRect(gameGraphics, centerX + RECT_WIDTH + 1 + CIRCLE_WIDTH / 4,
                 centerY + OFFSET_RECT_Y + 5, RECT_WIDTH + 1,
-        computeRectLength(theThermometer)  , thermometerColor,theThermometer);
-
-
-
-
+                computeRectLength(theThermometer), thermometerColor, theThermometer);
 
 
     }
@@ -125,9 +158,9 @@ public class UiPanel extends JPanel {
     private int computeRectLength(Thermometer thermometer) {
         double temp = thermometer.getTemperature();
         double maxTemp;
-        if(thermometer.isFahrenheit()) {
-           maxTemp = thermometer.getMaxTempF();
-        }else{
+        if (thermometer.isFahrenheit()) {
+            maxTemp = thermometer.getMaxTempF();
+        } else {
             maxTemp = thermometer.getMaxTempC();
         }
 
@@ -155,21 +188,21 @@ public class UiPanel extends JPanel {
     //MODIFIES: gameGraphics
     //EFFECTS: draws all the rectangular component of main game screen
     private void drawRect(Graphics gameGraphics,
-                            int rectX, int rectY, int rectWidth,int rectLength,Color rectColor, Thermometer thermometer) {
-        if(rectLength < 25){
+                          int rectX, int rectY, int rectWidth, int rectLength, Color rectColor, Thermometer thermometer) {
+        if (rectLength < 25) {
             rectLength = 25;
         }
-        Graphics2D g2d = (Graphics2D)gameGraphics;
+        Graphics2D g2d = (Graphics2D) gameGraphics;
         AffineTransform old = g2d.getTransform();
-        g2d.rotate(Math.toRadians(180),rectX,rectY);
-        if(rectColor == null) {
+        g2d.rotate(Math.toRadians(180), rectX, rectY);
+        if (rectColor == null) {
             gameGraphics.drawRect(
                     rectX, rectY,
                     rectWidth, rectLength);
             g2d.setTransform(old);
 
 
-        }else{
+        } else {
             Color savedColor = gameGraphics.getColor();
             gameGraphics.setColor(rectColor);
             gameGraphics.fillRect(
@@ -177,34 +210,35 @@ public class UiPanel extends JPanel {
                     rectWidth, rectLength);
             gameGraphics.setColor(savedColor);
 
-            drawInputLevelLine(gameGraphics, rectX, rectY+rectLength, RECT_WIDTH + 30 );
+            drawInputLevelLine(gameGraphics, rectX, rectY + rectLength, RECT_WIDTH + 30);
             g2d.setTransform(old);
 
             String message;
-            if(thermometer.isBoiling()){
+            if (thermometer.isBoiling()) {
                 message = "(Boiling) " + String.valueOf(thermometer.getTemperature()) + thermometer.getDegreeType();
-            }else if (thermometer.isFreezing()){
+                if (thermometer instanceof Thermometer) {
+                    thermometerColor = thermometerColorBoiling;
+                }
+            } else if (thermometer.isFreezing()) {
                 message = "(Freezing) " + String.valueOf(thermometer.getTemperature()) + thermometer.getDegreeType();
-            }else{
+                if (thermometer instanceof Thermometer) {
+                    thermometerColor = thermometerColorFreezing;
+                }
+            } else {
                 message = String.valueOf(thermometer.getTemperature()) + thermometer.getDegreeType();
             }
             drawMessage(message, gameGraphics,
-                    15,rectX - RECT_WIDTH - 30,
+                    15, rectX - RECT_WIDTH - 30,
                     rectY - rectLength, Color.BLACK);
 
 
         }
 
 
-
-
-
-
-
     }
 
     private void drawInputLevelLine(Graphics gameGraphics, int lineX, int lineY, int lineWidth) {
-        gameGraphics.drawLine(lineX, lineY, lineX+lineWidth,lineY);
+        gameGraphics.drawLine(lineX, lineY, lineX + lineWidth, lineY);
     }
 
 

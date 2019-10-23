@@ -11,7 +11,7 @@ import model.exceptions.*;
 public class RoomWithThermometer {
     public static final int WIDTH = 1500;
     public static final int LENGTH = 800;
-    public static final String FREEZING_POINT = "15 F";
+    public static final String FREEZING_POINT = "32 F";
     public static final String BOILING_POINT = "212 F";
     public static final double INSIGNIFICANT_OFFSET = 0.5;
     public static final String DEFAULT_FILE_PATH = "src/temperature.txt";
@@ -46,9 +46,9 @@ public class RoomWithThermometer {
 
         thermometer = new Thermometer(FREEZING_POINT,
                 BOILING_POINT,INSIGNIFICANT_OFFSET);
-        thermometerBoiling = new Thermometer(FREEZING_POINT,
+        thermometerBoiling = new ThermometerBoiling(FREEZING_POINT,
                 BOILING_POINT,INSIGNIFICANT_OFFSET);
-        thermometerFreezing = new Thermometer(FREEZING_POINT,
+        thermometerFreezing = new ThermometerFreezing(FREEZING_POINT,
                 BOILING_POINT,INSIGNIFICANT_OFFSET);
 
     }
